@@ -1,0 +1,38 @@
+#!/bin/bash
+set -e
+
+# Variables passed from Terraform
+ENVIRONMENT="${environment}"
+SERVER_NAME="${server_name}"
+PROJECT="${project}"
+
+# Install packages
+yum install -y httpd
+
+# Create index page with server info
+cat > /var/www/html/index.html <<EOF
+<!DOCTYPE html>
+<html>
+<head>
+    <title>$SERVER_NAME</title>
+</head>
+<body>
+    <h1>Welcome to $SERVER_NAME</h1>
+    <div class="info">
+        <p><strong>Environment:</strong> $ENVIRONMENT</p>
+        <p><strong>Project:</strong> $PROJECT</p>
+        <p><strong>Instance:</strong> $(curl -s http://169.254.169.254/latest/meta-data/instance-id)</p>
+        <p><strong>AZ:</strong> $(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone)</p>
+    </div>
+</body>
+</html>
+EOF
+
+# Configure services using template for loop
+%{ for service in services ~}
+echo "Enabling service: ${service}"
+systemctl enable ${service} || true
+systemctl start ${service} || true
+%{ endfor ~}
+
+echo "Server $SERVER_NAME initialization complete"

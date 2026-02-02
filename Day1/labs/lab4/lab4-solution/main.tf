@@ -3,6 +3,10 @@ resource "random_id" "suffix" {
   byte_length = 4
 }
 
+data "aws_availability_zones" "available" {
+  state = "available"
+}
+
 # Get default VPC
 data "aws_vpc" "default" {
   default = true
@@ -87,7 +91,7 @@ resource "aws_instance" "web" {
   instance_type          = "t3.micro"
   subnet_id              = data.aws_subnets.default.ids[0]
   vpc_security_group_ids = [aws_security_group.web_sg.id]
-
+  availability_zone = local.supported_azs[0]
   tags = {
     Name        = local.server_name
     Environment = var.environment

@@ -10,9 +10,10 @@ locals {
     for rule in var.ingress_rules :
     format("%s-%d", rule.protocol, rule.port) => rule
   }
-  supported_azs = [
-    for az in data.aws_availability_zones.available.names :
-    az if az != "us-east-1e"
+
+  non_1e_subnets = [
+    for s in data.aws_subnet.details :
+    s.id if s.availability_zone != "us-east-1e"
   ]
 }
 

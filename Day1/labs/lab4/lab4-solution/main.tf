@@ -20,6 +20,11 @@ data "aws_subnets" "default" {
   }
 }
 
+data "aws_subnet" "details" {
+  for_each = toset(data.aws_subnets.default.ids)
+  id       = each.value
+}
+
 # Get latest Amazon Linux 2023 AMI
 data "aws_ami" "amazon_linux_2023" {
   most_recent = true
@@ -89,9 +94,9 @@ resource "aws_vpc_security_group_ingress_rule" "rules" {
 resource "aws_instance" "web" {
   ami                    = data.aws_ami.amazon_linux_2023.id
   instance_type          = "t3.micro"
-  subnet_id              = data.aws_subnets.default.ids[0]
+  subnet_id              = local.non_1e_subnets[0]
   vpc_security_group_ids = [aws_security_group.web_sg.id]
-  availability_zone = local.supported_azs[0]
+
   tags = {
     Name        = local.server_name
     Environment = var.environment

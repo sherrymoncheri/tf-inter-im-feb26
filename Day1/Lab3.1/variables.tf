@@ -9,3 +9,10 @@ variable "common_tags" {
   }
 }
 
+variable "env" {
+  default = "dev"
+}
+
+variable "project" {
+  default = "proj1"
+}

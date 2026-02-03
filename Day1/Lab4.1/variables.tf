@@ -8,4 +8,3 @@ variable "common_tags" {
     Project     = "Terraform-Lab"
   }
 }
-
